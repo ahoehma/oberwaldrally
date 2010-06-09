@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+        targetNamespace="http://www.ahoehma.de/owr/board-1.0.0" 
+        xmlns:tns="http://www.ahoehma.de/owr/board-1.0.0"
+        elementFormDefault="qualified">
+
+  <element name="board" type="tns:boardType"/>  
+
+  <complexType name="boardType">
+    <sequence>
+      <element name="fields" minOccurs="1" maxOccurs="1">
+        <complexType>
+          <sequence>
+            <element name="field" type="tns:fieldType" minOccurs="0" maxOccurs="unbounded" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+  <complexType name="fieldType">
+    <annotation>
+      <documentation>
+        One field
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="wall" type="tns:wallType" minOccurs="0" maxOccurs="unbounded" />
+    </sequence>
+    <attribute name="border" type="string" use="required" />
+    <attribute name="size" type="integer" use="required">
+      <annotation>
+        <documentation>
+          This value define the size of the field. The size is the number of cells in
+          vertical direction (columns) and horizontal direction (rows). A field is always
+          quadratic. 
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="wallType">
+    <attribute name="col" type="string" use="required" />
+    <attribute name="row" type="string" use="required" />
+    <attribute name="border" type="string" use="required" />
+  </complexType>
+
+</schema>
