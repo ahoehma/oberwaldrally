@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<board xmlns="http://www.ahoehma.de/owr/board-1.0.0">
+    <fields>
+        <field size="8" border="SWNO">
+            <wall border="O" row="0" col="1"/>
+            <wall border="NO" row="1" col="6"/>
+            <wall border="NO" row="2" col="3"/>
+            <wall border="S" row="5" col="0"/>
+            <wall border="NW" row="5" col="4"/>
+            <wall border="OS" row="5" col="6"/>
+            <wall border="W" row="7" col="6"/>
+        </field>
+    </fields>
+</board>

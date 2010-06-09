@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Oberwald Robots"
+            id="de.ahoehma.owr">
+      </category>
+      <view
+            category="de.ahoehma.owr"
+            class="de.ahoehma.owr.views.BoardView"
+            icon="icons/sample.gif"
+            id="de.ahoehma.owr.views.BoardView"
+            name="Board View">
+      </view>
+      <view
+            category="de.ahoehma.owr"
+            class="de.ahoehma.owr.views.GraphView"
+            icon="icons/sample.gif"
+            id="de.ahoehma.owr.views.GraphView"
+            name="Graph View">
+      </view>
+      <view
+            category="de.ahoehma.owr"
+            class="de.ahoehma.owr.views.BoardSelectorView"
+            icon="icons/sample.gif"
+            id="de.ahoehma.owr.views.BoardSelectorView"
+            name="Board Selector">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="de.ahoehma.owr.Perspective">
+         <view
+               id="de.ahoehma.owr.views.BoardSelectorView"
+               minimized="false"
+               relationship="left"
+               visible="true">
+         </view>
+         <view
+               id="de.ahoehma.owr.views.BoardView"
+               minimized="false"
+               relationship="stack"
+               visible="true">
+         </view>
+         <view
+               id="de.ahoehma.owr.views.GraphView"
+               minimized="false"
+               relationship="stack"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.ahoehma.owr.PerspectiveFactory"
+            icon="icons/sample.gif"
+            id="de.ahoehma.owr.Perspective"
+            name="Oberwald Rally">
+      </perspective>
+   </extension>
+
+</plugin>
