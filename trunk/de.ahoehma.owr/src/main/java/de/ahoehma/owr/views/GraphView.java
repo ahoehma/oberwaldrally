@@ -25,7 +25,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
-import de.ahoehma.owr.data.BoardProvider;
 import de.ahoehma.owr.game.ai.BoardCalculator;
 import de.ahoehma.owr.game.ai.GraphCalculator;
 import de.ahoehma.owr.game.ai.RobotMove;
@@ -45,13 +44,6 @@ public class GraphView extends BoardView {
    */
   public static final String ID = "de.ahoehma.owr.views.GraphView";
 
-  private Canvas graphCanvas;
-
-  private Image graphImage;
-
-  public GraphView() {
-    super();
-  }
   private static Image makeSWTImage(final Display display, final java.awt.Image ai) throws Exception {
     final int width = ai.getWidth(null);
     final int height = ai.getHeight(null);
@@ -66,63 +58,17 @@ public class GraphView extends BoardView {
     return swtImage;
   }
 
-  @Override
-  public void createPartControl(final Composite parent) {
-    super.createPartControl(parent);
-    graphCanvas = new Canvas(parent, SWT.NONE);
-    graphCanvas.addListener(SWT.Paint, new Listener() {
-      public void handleEvent(final Event e) {
-        final GC gc = e.gc;
-        if (graphImage != null) {
-          gc.drawImage(graphImage, 0, 0);
-        }
-      }
-    });
-  }
+  private Canvas graphCanvas;
 
-  @Override
-  public void propertyChange(final PropertyChangeEvent evt) {
-    // super.propertyChange(evt);
-    if (BoardProvider.BOARD.equals(evt.getPropertyName())) {
-      setBoard(BoardProvider.INSTANCE.getBoard());
-      updateBoardPainter();
-      if (graphImage != null) {
-        graphImage.dispose();
-      }
-      graphImage = null;
-    }
-    // only complete steps
-    if (Board.ROBOT_STEP.equals(evt.getPropertyName())) {
-      // createGraphImage(null);
-      // updateBoardPainter();
-    }
+  private Image graphImage;
+
+  public GraphView() {
+    super();
   }
 
   @Override
   protected BoardCalculator createCalculator(final Board board) {
     return new GraphCalculator(board);
-  }
-
-  @Override
-  protected void initBoard(final Board aBoard) {
-    System.out.println("Init board ... " + this);
-    final int size = aBoard.size();
-    aBoard.getRobots().clear();
-    final Random r = new Random(System.currentTimeMillis());
-    int col = r.nextInt(size - 1);
-    int row = r.nextInt(size - 1);
-    aBoard.addRobot(col, row, Symbol.BLUE);
-    aBoard.setSourceCell(col, row);
-    col = r.nextInt(size - 1);
-    row = r.nextInt(size - 1);
-    aBoard.setTargetCell(col, row);
-  }
-
-  @Override
-  protected void onCalculatorFinished() {
-    final GraphCalculator c = (GraphCalculator) calculator;
-    final List<RobotMove> path = c.getPath();
-    createGraphImage(path);
   }
 
   private void createGraphImage(final List<RobotMove> thePath) {
@@ -153,9 +99,7 @@ public class GraphView extends BoardView {
     }
     vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
     final Display display = PlatformUI.getWorkbench().getDisplay();
-    if (display.isDisposed()) {
-      return;
-    }
+    if (display.isDisposed()) { return; }
     display.syncExec(new Runnable() {
       public void run() {
         try {
@@ -168,19 +112,63 @@ public class GraphView extends BoardView {
             graphImage = makeSWTImage(display, image);
             graphCanvas.redraw();
           }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
           System.err.println("Can't make image " + e);
         }
       }
     });
   }
 
+  @Override
+  public void createPartControl(final Composite parent) {
+    super.createPartControl(parent);
+    graphCanvas = new Canvas(parent, SWT.NONE);
+    graphCanvas.addListener(SWT.Paint, new Listener() {
+      public void handleEvent(final Event e) {
+        final GC gc = e.gc;
+        if (graphImage != null) {
+          gc.drawImage(graphImage, 0, 0);
+        }
+      }
+    });
+  }
+
+  @Override
+  protected void initBoard(final Board aBoard) {
+    System.out.println("Init board ... " + this);
+    final int size = aBoard.size();
+    aBoard.getRobots().clear();
+    final Random r = new Random(System.currentTimeMillis());
+    int col = r.nextInt(size - 1);
+    int row = r.nextInt(size - 1);
+    aBoard.addRobot(col, row, Symbol.BLUE);
+    aBoard.setSourceCell(col, row);
+    col = r.nextInt(size - 1);
+    row = r.nextInt(size - 1);
+    aBoard.setTargetCell(col, row);
+  }
+
   private boolean isPathCell(final List<RobotMove> thePath, final Cell cell) {
     for (final RobotMove robotMove : thePath) {
-      if (robotMove.contains(cell)) {
-        return true;
-      }
+      if (robotMove.contains(cell)) { return true; }
     }
     return false;
+  }
+
+  @Override
+  protected void onCalculatorFinished() {
+    final GraphCalculator c = (GraphCalculator) calculator;
+    final List<RobotMove> path = c.getPath();
+    createGraphImage(path);
+  }
+
+  @Override
+  public void propertyChange(final PropertyChangeEvent evt) {
+    // only complete steps
+    if (Board.ROBOT_STEP.equals(evt.getPropertyName())) {
+      // createGraphImage(null);
+      // updateBoardPainter();
+    }
   }
 }

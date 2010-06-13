@@ -17,7 +17,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import de.ahoehma.owr.Activator;
-import de.ahoehma.owr.data.BoardProvider;
 import de.ahoehma.owr.game.ai.BoardCalculator;
 import de.ahoehma.owr.game.ai.RandomCalculator;
 import de.ahoehma.owr.game.core.Board;
@@ -45,7 +44,14 @@ public class BoardView extends ViewPart implements PropertyChangeListener {
 
   public BoardView() {
     super();
-    BoardProvider.INSTANCE.addPropertyChangeListener("board", this);
+  }
+
+  private void contributeToActionBars() {
+    fillLocalToolBar(getViewSite().getActionBars().getToolBarManager());
+  }
+
+  protected BoardCalculator createCalculator(final Board board) {
+    return new RandomCalculator(board);
   }
 
   @Override
@@ -57,24 +63,17 @@ public class BoardView extends ViewPart implements PropertyChangeListener {
   }
 
   @Override
-  public void propertyChange(final PropertyChangeEvent evt) {
-    if (BoardProvider.BOARD.equals(evt.getPropertyName())) {
-      setBoard(BoardProvider.INSTANCE.getBoard());
-      updateBoardPainter();
-    }
-    // single step
-    if (Board.ROBOT_STEP.equals(evt.getPropertyName())) {
-      updateBoardPainter();
+  public void dispose() {
+    super.dispose();
+    if (executorService != null) {
+      executorService.shutdownNow();
     }
   }
 
-  @Override
-  public void setFocus() {
-    // nop
-  }
-
-  protected BoardCalculator createCalculator(final Board board) {
-    return new RandomCalculator(board);
+  private void fillLocalToolBar(final IToolBarManager manager) {
+    manager.add(play);
+    manager.add(pause);
+    manager.add(reset);
   }
 
   protected void initBoard(final Board aBoard) {
@@ -92,15 +91,18 @@ public class BoardView extends ViewPart implements PropertyChangeListener {
       // find blue target
       targets = board.getTargets(Symbol.BLUE);
       aBoard.setSourceCell(0, 0);
-    } else if (robot == 1) {
+    }
+    else if (robot == 1) {
       // find green target
       targets = board.getTargets(Symbol.GREEN);
       aBoard.setSourceCell(size, 0);
-    } else if (robot == 2) {
+    }
+    else if (robot == 2) {
       // find yellow target
       targets = board.getTargets(Symbol.YELLOW);
       aBoard.setSourceCell(0, size);
-    } else if (robot == 3) {
+    }
+    else if (robot == 3) {
       // find red target
       targets = board.getTargets(Symbol.RED);
       aBoard.setSourceCell(size, size);
@@ -108,49 +110,10 @@ public class BoardView extends ViewPart implements PropertyChangeListener {
     if (!targets.isEmpty()) {
       final Cell targetCell = targets.get(r.nextInt(targets.size()));
       aBoard.setTargetCell(targetCell.getCol(), targetCell.getRow());
-    } else {
+    }
+    else {
       aBoard.setTargetCell(r.nextInt(size), r.nextInt(size));
     }
-  }
-
-  protected void onCalculatorFinished() {
-    // nop
-  }
-
-  protected void setBoard(final Board aBoard) {
-    if (aBoard != null) {
-      if (board != null) {
-        board.removePropertyChangeListener(this);
-      }
-      board = aBoard;
-      resetBoard();
-      board.addPropertyChangeListener(this);
-    }
-  }
-
-  protected void updateBoardPainter() {
-    final Display display = PlatformUI.getWorkbench().getDisplay();
-    if (display.isDisposed()) {
-      return;
-    }
-    display.syncExec(new Runnable() {
-      public void run() {
-        if (boardPainter.isDisposed()) {
-          return;
-        }
-        boardPainter.redraw();
-      }
-    });
-  }
-
-  private void contributeToActionBars() {
-    fillLocalToolBar(getViewSite().getActionBars().getToolBarManager());
-  }
-
-  private void fillLocalToolBar(final IToolBarManager manager) {
-    manager.add(play);
-    manager.add(pause);
-    manager.add(reset);
   }
 
   private void makeActions() {
@@ -184,14 +147,13 @@ public class BoardView extends ViewPart implements PropertyChangeListener {
     pause = new Action() {
       @Override
       public void run() {
-        if (!running) {
-          return;
-        }
+        if (!running) { return; }
         if (calculate) {
           if (calculator != null) {
             calculator.pause(true);
           }
-        } else {
+        }
+        else {
           if (calculator != null) {
             calculator.pause(false);
           }
@@ -218,11 +180,50 @@ public class BoardView extends ViewPart implements PropertyChangeListener {
     reset.setImageDescriptor(Activator.getImageDescriptor("icons/reset.png"));
   }
 
+  protected void onCalculatorFinished() {
+  // nop
+  }
+
+  @Override
+  public void propertyChange(final PropertyChangeEvent evt) {
+    // single step
+    if (Board.ROBOT_STEP.equals(evt.getPropertyName())) {
+      updateBoardPainter();
+    }
+  }
+
   private void resetBoard() {
     calculate = false;
     running = false;
     initBoard(board);
     calculator = createCalculator(board);
     boardPainter.setBoard(board);
+  }
+
+  protected void setBoard(final Board aBoard) {
+    if (aBoard != null) {
+      if (board != null) {
+        board.removePropertyChangeListener(this);
+      }
+      board = aBoard;
+      resetBoard();
+      board.addPropertyChangeListener(this);
+    }
+  }
+
+  @Override
+  public void setFocus() {
+  // nop
+  }
+
+  protected void updateBoardPainter() {
+    final Display display = PlatformUI.getWorkbench().getDisplay();
+    if (display.isDisposed()) { return; }
+    display.syncExec(new Runnable() {
+      public void run() {
+        if (boardPainter.isDisposed()) { return; }
+        boardPainter.redraw();
+      }
+    });
   }
 }

@@ -23,6 +23,28 @@ import de.ahoehma.owr.game.core.Robot;
 import de.ahoehma.owr.game.core.Symbol;
 
 /**
+ * The {@link BoardPainter} is a {@link Canvas} which can render a {@link Board}.
+ * 
+ * <p>
+ * The following elements will be rendered in the given order:
+ * <ul>
+ * <li>the cells</li>
+ * <li>the source cell</li>
+ * <li>the target cell</li>
+ * <li>the robots</li>
+ * <li>the robots history</li>
+ * <li>the walls</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * This {@link BoardPainter} support the images from "ricochet robots".
+ * </p>
+ * 
+ * <p>
+ * The {@link Board board} could be changed during {@link BoardPainter}'s lifetime ({@link #setBoard(Board)}).
+ * </p>
+ * 
  * @author andreas
  * @since 1.0.0
  */
@@ -44,11 +66,14 @@ public class BoardPainter extends Canvas {
    */
   private final Map<String, Image> symbolImages = loadSymbolImages();
 
+  /**
+   * @param parent
+   */
   public BoardPainter(final Composite parent) {
     this(parent, null);
   }
 
-  public BoardPainter(final Composite parent, final Board theBoard) {
+  private BoardPainter(final Composite parent, final Board theBoard) {
     super(parent, SWT.DOUBLE_BUFFERED);
     addPaintListener(new PaintListener() {
       public void paintControl(final PaintEvent event) {
@@ -61,6 +86,90 @@ public class BoardPainter extends Canvas {
 
   public int getCellSize() {
     return cellSize;
+  }
+
+  private String getColor(final int theColor) {
+    switch (theColor) {
+    case Symbol.BLUE:
+      return "blue";
+    case Symbol.RED:
+      return "red";
+    case Symbol.YELLOW:
+      return "yellow";
+    case Symbol.GREEN:
+      return "green";
+    }
+    return null;
+  }
+
+  private String getForm(final int theForm) {
+    switch (theForm) {
+    case Symbol.CIRCLE:
+      return "circle";
+    case Symbol.SATURN:
+      return "saturn";
+    case Symbol.STAR:
+      return "star";
+    case Symbol.TRIANGLE:
+      return "triangle";
+    case Symbol.CENTER:
+      return "center";
+    case Symbol.SPECIAL:
+      return "special";
+    }
+    return null;
+  }
+
+  private int getSWTColor(final int theColor) {
+    switch (theColor) {
+    case Symbol.BLUE:
+      return SWT.COLOR_BLUE;
+    case Symbol.RED:
+      return SWT.COLOR_RED;
+    case Symbol.YELLOW:
+      return SWT.COLOR_YELLOW;
+    case Symbol.GREEN:
+      return SWT.COLOR_GREEN;
+    }
+    return -1;
+  }
+
+  private Image getSymbolImage(final Symbol theTarget) {
+    if (theTarget.type == Symbol.SPECIAL) { return symbolImages.get("special"); }
+    return symbolImages.get(getForm(theTarget.type) + "_" + getColor(theTarget.color));
+  }
+
+  private Map<String, Image> loadRobotImages() {
+    final Map<String, Image> result = new HashMap<String, Image>();
+    final Display display = PlatformUI.getWorkbench().getDisplay();
+    if (display.isDisposed()) { return result; }
+    for (final String color : Arrays.asList("blue", "green", "yellow", "red")) {
+      final InputStream resourceAsStream = BoardPainter.class.getResourceAsStream("robot_" + color + ".png");
+      if (resourceAsStream != null) {
+        result.put(color, new Image(display, resourceAsStream));
+      }
+    }
+    return result;
+  }
+
+  private Map<String, Image> loadSymbolImages() {
+    final Map<String, Image> result = new HashMap<String, Image>();
+    final Display display = PlatformUI.getWorkbench().getDisplay();
+    if (display.isDisposed()) { return result; }
+    for (final String form : Arrays.asList("circle", "saturn", "star", "triangle")) {
+      for (final String color : Arrays.asList("blue", "green", "yellow", "red")) {
+        final String name = form + "_" + color;
+        final InputStream resourceAsStream = BoardPainter.class.getResourceAsStream(name + ".png");
+        if (resourceAsStream != null) {
+          result.put(name, new Image(display, resourceAsStream));
+        }
+      }
+    }
+    final InputStream resourceAsStream = BoardPainter.class.getResourceAsStream("special.png");
+    if (resourceAsStream != null) {
+      result.put("special", new Image(display, resourceAsStream));
+    }
+    return result;
   }
 
   public void paint(final GC gc) {
@@ -76,104 +185,6 @@ public class BoardPainter extends Canvas {
       paintRobotHistory(xorg, yorg, gc);
       paintWalls(xorg, yorg, gc);
     }
-  }
-
-  public void setBoard(final Board board) {
-    if (board != null) {
-      this.board = board;
-      final int canvasSize = (1 + board.size()) * cellSize;
-      setSize(canvasSize, canvasSize);
-    }
-  }
-
-  private String getColor(final int theColor) {
-    switch (theColor) {
-      case Symbol.BLUE :
-        return "blue";
-      case Symbol.RED :
-        return "red";
-      case Symbol.YELLOW :
-        return "yellow";
-      case Symbol.GREEN :
-        return "green";
-    }
-    return null;
-  }
-
-  private String getForm(final int theForm) {
-    switch (theForm) {
-      case Symbol.CIRCLE :
-        return "circle";
-      case Symbol.SATURN :
-        return "saturn";
-      case Symbol.STAR :
-        return "star";
-      case Symbol.TRIANGLE :
-        return "triangle";
-      case Symbol.CENTER :
-        return "center";
-      case Symbol.SPECIAL :
-        return "special";
-    }
-    return null;
-  }
-
-  private int getSWTColor(final int theColor) {
-    switch (theColor) {
-      case Symbol.BLUE :
-        return SWT.COLOR_BLUE;
-      case Symbol.RED :
-        return SWT.COLOR_RED;
-      case Symbol.YELLOW :
-        return SWT.COLOR_YELLOW;
-      case Symbol.GREEN :
-        return SWT.COLOR_GREEN;
-    }
-    return -1;
-  }
-
-  private Image getSymbolImage(final Symbol theTarget) {
-    if (theTarget.type == Symbol.SPECIAL) {
-      return symbolImages.get("special");
-    }
-    return symbolImages.get(getForm(theTarget.type) + "_" + getColor(theTarget.color));
-  }
-
-  private Map<String, Image> loadRobotImages() {
-    final Map<String, Image> result = new HashMap<String, Image>();
-    final Display display = PlatformUI.getWorkbench().getDisplay();
-    if (display.isDisposed()) {
-      return result;
-    }
-    for (final String color : Arrays.asList("blue", "green", "yellow", "red")) {
-      final InputStream resourceAsStream = BoardPainter.class.getResourceAsStream("robot_" + color + ".png");
-      if (resourceAsStream != null) {
-        result.put(color, new Image(display, resourceAsStream));
-      }
-    }
-    return result;
-  }
-
-  private Map<String, Image> loadSymbolImages() {
-    final Map<String, Image> result = new HashMap<String, Image>();
-    final Display display = PlatformUI.getWorkbench().getDisplay();
-    if (display.isDisposed()) {
-      return result;
-    }
-    for (final String form : Arrays.asList("circle", "saturn", "star", "triangle")) {
-      for (final String color : Arrays.asList("blue", "green", "yellow", "red")) {
-        final String name = form + "_" + color;
-        final InputStream resourceAsStream = BoardPainter.class.getResourceAsStream(name + ".png");
-        if (resourceAsStream != null) {
-          result.put(name, new Image(display, resourceAsStream));
-        }
-      }
-    }
-    final InputStream resourceAsStream = BoardPainter.class.getResourceAsStream("special.png");
-    if (resourceAsStream != null) {
-      result.put("special", new Image(display, resourceAsStream));
-    }
-    return result;
   }
 
   private void paintBoard(final int xorg, final int yorg, final GC gc) {
@@ -268,6 +279,17 @@ public class BoardPainter extends Canvas {
         gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
         gc.fillRectangle(x, y, BORDER_SIZE, cellSize);
       }
+    }
+  }
+
+  /**
+   * @param theBoard
+   */
+  public void setBoard(final Board theBoard) {
+    if (theBoard != null) {
+      board = theBoard;
+      final int canvasSize = (1 + board.size()) * cellSize;
+      setSize(canvasSize, canvasSize);
     }
   }
 }
