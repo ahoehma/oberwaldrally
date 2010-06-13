@@ -9,4 +9,6 @@ public interface BoardCalculator {
   void pause(boolean flag);
 
   void start();
+
+  void stop();
 }

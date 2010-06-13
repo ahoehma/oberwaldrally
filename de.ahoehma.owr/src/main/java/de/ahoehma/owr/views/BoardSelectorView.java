@@ -13,6 +13,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -72,7 +75,17 @@ public class BoardSelectorView extends ViewPart {
       public void doubleClick(final DoubleClickEvent event) {
         final StructuredSelection selection = (StructuredSelection) viewer.getSelection();
         final String boardName = (String) selection.getFirstElement();
-        BoardProvider.INSTANCE.loadBoard(boardName);
+        // BoardProvider.INSTANCE.loadBoard(boardName);
+        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        try {
+          // final IViewPart showView = page.showView(BoardView.ID, boardName, IWorkbenchPage.VIEW_VISIBLE);
+          final IViewPart showView = page.showView(GraphView.ID, boardName, IWorkbenchPage.VIEW_VISIBLE);
+          if (showView instanceof BoardView) {
+            final BoardView boardView = (BoardView) showView;
+            boardView.setBoard(BoardProvider.INSTANCE.loadBoard(boardName));
+          }
+        }
+        catch (final PartInitException e) {}
       }
     });
     getSite().setSelectionProvider(viewer);

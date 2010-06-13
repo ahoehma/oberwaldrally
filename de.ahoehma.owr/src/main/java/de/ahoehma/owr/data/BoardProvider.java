@@ -1,8 +1,5 @@
 package de.ahoehma.owr.data;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,23 +26,16 @@ import de.ahoehma.owr.game.io.BoardReader;
 public class BoardProvider {
 
   public static final String BOARD = "board";
-
   public static final BoardProvider INSTANCE = new BoardProvider();
-
-  private Board board;
   private final List<URL> availableBoards = new ArrayList<URL>();
-  private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
   private BoardProvider() {
     final Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
+    @SuppressWarnings("unchecked")
     final Enumeration<URL> allBoards = bundle.findEntries("boards", "*.xml", true);
     while (allBoards.hasMoreElements()) {
       availableBoards.add(allBoards.nextElement());
     }
-  }
-
-  public void addPropertyChangeListener(final String propertyName, final PropertyChangeListener listener) {
-    propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
   }
 
   public List<String> getAvailableBoards() {
@@ -56,25 +46,18 @@ public class BoardProvider {
     return result;
   }
 
-  public Board getBoard() {
-    return board;
-  }
-
-  public void loadBoard(final String boardName) {
+  public Board loadBoard(final String boardName) {
     final Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
     final URL resource = bundle.getResource(boardName);
     if (resource != null) {
       try {
-        board = new BoardReader().read(resource.openStream());
-        System.out.println("Loaded board " + boardName);
-        propertyChangeSupport.firePropertyChange(new PropertyChangeEvent(this, BOARD, null, board));
-      } catch (final IOException e) {
+        return new BoardReader().read(resource.openStream());
+        // propertyChangeSupport.firePropertyChange(new PropertyChangeEvent(this, BOARD, null, board));
+      }
+      catch (final IOException e) {
         System.err.println("Could not load board." + e);
       }
     }
-  }
-
-  public void removePropertyChangeListener(final PropertyChangeListener listener) {
-    propertyChangeSupport.removePropertyChangeListener(listener);
+    return null;
   }
 }

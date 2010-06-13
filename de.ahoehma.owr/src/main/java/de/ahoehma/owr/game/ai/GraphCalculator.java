@@ -1,11 +1,11 @@
 package de.ahoehma.owr.game.ai;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
 import de.ahoehma.owr.game.core.Board;
 import de.ahoehma.owr.game.core.Cell;
-import de.ahoehma.owr.game.core.Robot;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -14,42 +14,30 @@ import edu.uci.ics.jung.graph.Graph;
  * @author andreas
  * @since 1.0.0
  */
-public class GraphCalculator implements BoardCalculator {
+public class GraphCalculator extends AbstractCalculator {
 
-  private final Board board;
-  private Graph<Cell, RobotMove> g;
-  private List<RobotMove> path;
+  private final Graph<Cell, RobotMove> g = new DirectedSparseGraph<Cell, RobotMove>();
+  private final List<RobotMove> path = new ArrayList<RobotMove>();
 
   public GraphCalculator(final Board aBoard) {
-    board = aBoard;
+    super(aBoard);
   }
 
-  public Graph<Cell, RobotMove> getGraph() {
-    return g;
-  }
-
-  public List<RobotMove> getPath() {
-    return path;
-  }
-
-  @Override
-  public void pause(final boolean flag) {
-  }
-
-  public void start() {
-    final Cell sourceCell = board.getSourceCell();
-    final Robot r = board.getRobot(sourceCell);
-    if (r == null) {
-      return;
-    }
-    final Cell targetCell = board.getTargetCell();
+  /**
+   * Build a graph of possible {@link RobotMove moves} starting a the given {@link Cell}. This method will move the
+   * robot from the {@link Cell source-cell} to all reachable {@link Cell cells}. During this a graph will be create. If
+   * the method return the graph could be used to calculate the shortes path etc.
+   * 
+   * @param sourceCell
+   *          to start
+   */
+  private void buildGraph(final Cell sourceCell) {
     final Stack<Cell> cellStack = new Stack<Cell>();
-    g = new DirectedSparseGraph<Cell, RobotMove>();
     g.addVertex(sourceCell);
     cellStack.push(sourceCell);
     while (!cellStack.isEmpty()) {
       final Cell c = cellStack.pop();
-      r.setPosition(c);
+      robot.setPosition(c);
       final List<Cell> cells = board.getMoveableCells(c);
       if (cells.isEmpty()) {
         continue;
@@ -58,26 +46,42 @@ public class GraphCalculator implements BoardCalculator {
         if (board.isRobot(cell)) {
           continue;
         }
-        r.setPosition(c);
-        r.setMoveVector(cell);
-        final List<Cell> visitedCells = board.moveRobot(board, r);
+        robot.setPosition(c);
+        robot.setMoveVector(cell);
+        final List<Cell> visitedCells = board.moveRobot(board, robot);
         if (visitedCells.size() == 1) {
           continue;
         }
-        final Cell stopCell = board.getCell(r.getCol(), r.getRow());
+        final Cell stopCell = board.getCell(robot.getCol(), robot.getRow());
         if (!g.containsVertex(stopCell)) {
           cellStack.push(stopCell);
           g.addVertex(stopCell);
         }
-        g.addEdge(new RobotMove(c, stopCell), c, stopCell);
+        g.addEdge(new RobotMove(robot, c, stopCell), c, stopCell);
       }
     }
+  }
+
+  @Override
+  public List<RobotMove> calculate() {
+    final Cell sourceCell = board.getSourceCell();
+    final Cell targetCell = board.getTargetCell();
+    buildGraph(sourceCell);
     if (g.containsVertex(targetCell)) {
       final DijkstraShortestPath<Cell, RobotMove> alg = new DijkstraShortestPath<Cell, RobotMove>(g);
-      path = alg.getPath(sourceCell, targetCell);
-    } else {
-      path = null;
+      path.addAll(alg.getPath(sourceCell, targetCell));
+    }
+    else {
       System.out.println(String.format("No path from %s to %s", sourceCell, targetCell));
     }
+    return path;
+  }
+
+  public Graph<Cell, RobotMove> getGraph() {
+    return g;
+  }
+
+  public List<RobotMove> getPath() {
+    return path;
   }
 }

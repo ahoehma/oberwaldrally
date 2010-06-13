@@ -25,8 +25,35 @@ import de.ahoehma.owr.game.xml.BoardType;
 import de.ahoehma.owr.game.xml.FieldType;
 import de.ahoehma.owr.game.xml.WallType;
 
+/**
+ * @author andreas
+ * @since 1.0.0
+ */
 public class BoardReader {
 
+  private Document parse(final InputSource source) {
+    try {
+      final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setNamespaceAware(true);
+      final DocumentBuilder db = dbf.newDocumentBuilder();
+      final Document document = db.parse(source);
+      return document;
+    }
+    catch (final ParserConfigurationException e) {
+      throw new RuntimeException(e);
+    }
+    catch (final SAXException e) {
+      throw new RuntimeException(e);
+    }
+    catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * @param stream
+   * @return
+   */
   public Board read(final InputStream stream) {
     final Document document = parse(new InputSource(stream));
     try {
@@ -49,25 +76,6 @@ public class BoardReader {
       return Board.b(fields);
     }
     catch (final JAXBException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private Document parse(final InputSource source) {
-    try {
-      final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setNamespaceAware(true);
-      final DocumentBuilder db = dbf.newDocumentBuilder();
-      final Document document = db.parse(source);
-      return document;
-    }
-    catch (final ParserConfigurationException e) {
-      throw new RuntimeException(e);
-    }
-    catch (final SAXException e) {
-      throw new RuntimeException(e);
-    }
-    catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
