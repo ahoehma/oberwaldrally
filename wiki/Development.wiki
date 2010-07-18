@@ -7,6 +7,6 @@ How to setup the IDE ...
 
 = Details =
 
-* Download Eclipse PDE
-* Checkout the source
-* Hack :)
+ * Download Eclipse PDE
+ * Checkout the source
+ * Hack :)
