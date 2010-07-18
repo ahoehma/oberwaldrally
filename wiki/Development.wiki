@@ -14,7 +14,7 @@ How to setup the IDE ...
 
 = Maven =
 
-I used maven for the project managment. At the moment pde and maven doesn't work (out of the box) together ... but maybe later ;). 
+I use maven for the project managment. At the moment pde and maven doesn't work (out of the box) together ... but maybe later ;). 
 
 For now the maven build contains a plugin which generate some java classes for xsd definition (xml is used for board load/save). So it's necessary setup the project correctly.
 
