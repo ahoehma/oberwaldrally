@@ -1,0 +1,12 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+How to setup the IDE ...
+
+
+= Details =
+
+* Download Eclipse PDE
+* Checkout the source
+* Hack :)
