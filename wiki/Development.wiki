@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Setup for hacking
 
 = Introduction =
 
@@ -7,6 +7,15 @@ How to setup the IDE ...
 
 = Details =
 
- * Download Eclipse PDE
+ * Download/Install Eclipse PDE ([http://www.eclipse.org/downloads/])
+ * Download/Install m2Eclipse ([http://m2eclipse.sonatype.org/])
  * Checkout the source
  * Hack :)
+
+= Maven =
+
+I used maven for the project managment. At the moment pde and maven doesn't work (out of the box) together ... but maybe later ;). 
+
+For now the maven build contains a plugin which generate some java classes for xsd definition (xml is used for board load/save). So it's necessary setup the project correctly.
+
+You have to install the m2eclipse Plugin. The plugin will do the rest for you ;)
