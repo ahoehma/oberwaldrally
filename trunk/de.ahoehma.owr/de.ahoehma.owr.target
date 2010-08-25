@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="de.ahoehma.owr.target">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.platform.ide" version="3.5.2.M20100211-1343"/>
+<unit id="org.eclipse.platform.source.feature.group" version="3.5.2.R35x_v20100210-0800-9hEiFzmFst-TiEn9hNYgDWg1XN8ulH_JvCNGB"/>
+<unit id="org.eclipse.platform.sdk" version="3.5.2.M20100211-1343"/>
+<repository location="http://download.eclipse.org/releases/galileo"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.tptp.platform.commons.logging.feature.group" version="4.4.100.v200912101900-2-37w311A1517336A"/>
+<unit id="org.eclipse.tptp.platform.jakarta.log4j.feature.group" version="4.4.100.v200912101900-217C7w311A14183138"/>
+<repository location="http://download.eclipse.org/releases/galileo"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.rcp.feature.group" version="3.5.2.R35x_v20100119-9SA0FxwFnoCU5XxWItFdXXb27BA6"/>
+<unit id="org.eclipse.rcp.source.feature.group" version="3.5.2.R35x_v20100119-9SA0FxwFnoCU5XxWItFdXXb27BA6"/>
+<unit id="org.eclipse.rcp.sdk.id" version="3.5.2.M20100211-1343"/>
+<repository location="http://download.eclipse.org/releases/galileo"/>
+</location>
+</locations>
+<environment>
+<os>win32</os>
+<ws>win32</ws>
+</environment>
+</target>
