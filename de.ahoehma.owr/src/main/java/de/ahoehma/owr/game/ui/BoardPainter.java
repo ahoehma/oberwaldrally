@@ -73,7 +73,11 @@ public class BoardPainter extends Canvas {
     this(parent, null);
   }
 
-  private BoardPainter(final Composite parent, final Board theBoard) {
+  /**
+   * @param parent
+   * @param theBoard
+   */
+  public BoardPainter(final Composite parent, final Board theBoard) {
     super(parent, SWT.DOUBLE_BUFFERED);
     addPaintListener(new PaintListener() {
       public void paintControl(final PaintEvent event) {
