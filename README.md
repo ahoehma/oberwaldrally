@@ -1,4 +1,4 @@
-# oberwaldrally
+# Eclipse PDE Maven Ricochet Robot Variant
 
 * Download Eclipse
 * Checkout the source
